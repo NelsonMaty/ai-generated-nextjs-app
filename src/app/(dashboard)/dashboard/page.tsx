@@ -51,7 +51,6 @@ export default function Dashboard() {
 
   return (
     <div className="flex h-screen bg-gray-100">
-      <Sidebar activePage="dashboard" />
 
       {/* Main content */}
       <div className="flex-1 p-10 bg-gray-50">

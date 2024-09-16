@@ -104,36 +104,6 @@ export default function WithdrawPage() {
 
   return (
     <div className="flex h-screen bg-gray-100">
-      {/* Sidebar */}
-      <div className="w-64 bg-white shadow-md">
-        <div className="p-4 flex items-center">
-          <Image src="/path-to-logo.jpg" alt="FinanceCo Logo" width={40} height={40} className="rounded-full" />
-          <div className="ml-2">
-            <h2 className="font-bold">FinanceCo</h2>
-            <p className="text-sm text-gray-500">Manage your money</p>
-          </div>
-        </div>
-        <nav className="mt-4">
-          <Link href="/dashboard" className="flex items-center py-2 px-4">
-            <svg className="w-5 h-5 mr-3" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1m-6 0h6" />
-            </svg>
-            Dashboard
-          </Link>
-          <Link href="/deposit" className="flex items-center py-2 px-4">
-            <svg className="w-5 h-5 mr-3" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 6v6m0 0v6m0-6h6m-6 0H6" />
-            </svg>
-            Deposit
-          </Link>
-          <Link href="/withdraw" className="flex items-center py-2 px-4 bg-gray-200">
-            <svg className="w-5 h-5 mr-3" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 12H9m12 0a9 9 0 11-18 0 9 9 0 0118 0z" />
-            </svg>
-            Withdraw
-          </Link>
-        </nav>
-      </div>
 
       {/* Main content */}
       <div className="flex-1 p-10">
