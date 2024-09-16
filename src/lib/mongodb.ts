@@ -1,3 +1,7 @@
+declare global {
+  var mongoose: { conn: any; promise: any } | undefined;
+}
+
 import mongoose from 'mongoose';
 
 const MONGODB_URI = process.env.MONGODB_URI!;
@@ -13,6 +17,10 @@ if (!mongooseInstance) {
 }
 
 async function dbConnect() {
+  if (!mongooseInstance) {
+    throw new Error('Mongoose instance is not initialized');
+  }
+
   if (mongooseInstance.conn) {
     return mongooseInstance.conn;
   }
