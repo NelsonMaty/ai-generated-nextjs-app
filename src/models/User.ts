@@ -1,21 +1,5 @@
 import mongoose from 'mongoose';
-
-const TransactionSchema = new mongoose.Schema({
-  type: {
-    type: String,
-    enum: ['deposit', 'withdrawal'],
-    required: true
-  },
-  amount: {
-    type: Number,
-    required: true
-  },
-  description: String,
-  date: {
-    type: Date,
-    default: Date.now
-  }
-});
+import { Schema } from 'mongoose';
 
 const UserSchema = new mongoose.Schema({
   firstName: String,
@@ -38,10 +22,10 @@ const UserSchema = new mongoose.Schema({
     type: Number,
     default: 0,
   },
-  transactions: {
-    type: [TransactionSchema],
-    default: []
-  }
+  transactions: [{
+    type: Schema.Types.ObjectId,
+    ref: 'Transaction'
+  }]
 });
 
 export default mongoose.models.User || mongoose.model('User', UserSchema);
