@@ -29,8 +29,8 @@ function SidebarLink({ href, label, icon }: SidebarLinkProps) {
 
 export function Sidebar() {
   return (
-    <aside className="w-64 bg-white text-gray-800 p-4 border-r border-gray-200">
-      <div className="mb-8 flex items-center">
+    <aside className="w-64 bg-white text-gray-800 p-4 border-r border-gray-200">      
+    <div className="mb-8 flex items-center">
         <div className="w-10 h-10 rounded-full bg-gray-300 mr-3 overflow-hidden">
           <Image
             src="/avatar-placeholder.png"
