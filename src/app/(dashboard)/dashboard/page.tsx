@@ -4,47 +4,53 @@ import { useEffect, useState } from 'react';
 import { useRouter } from 'next/navigation';
 import Link from 'next/link';
 
-interface Transaction {
-  date: string;
-  description: string;
-  category: string;
-  amount: number;
-}
-
-interface User {
-  name: string;
-  email: string;
-  accountNumber: string;
+interface UserBalance {
   balance: number;
-  transactions: Transaction[];
 }
 
 export default function Dashboard() {
-  const [user, setUser] = useState<User | null>(null);
-  const [searchTerm, setSearchTerm] = useState('');
+  const [balance, setBalance] = useState<number | null>(null);
+  const [isLoading, setIsLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
+  const [userId, setUserId] = useState<string | null>(null);
   const router = useRouter();
 
   useEffect(() => {
-    const token = localStorage.getItem('token');
-    if (!token) {
-      router.push('/login');
-      return;
-    }
-
-    fetch('/api/user', {
-      headers: {
-        'Authorization': `Bearer ${token}`
-      }
-    })
-      .then(response => response.json())
-      .then(data => setUser(data))
-      .catch(error => {
-        console.error('Error fetching user data:', error);
+    const checkAuth = async () => {
+      try {
+        const response = await fetch('/api/auth/check');
+        if (!response.ok) {
+          throw new Error('Not authenticated');
+        }
+        const data = await response.json();
+        setUserId(data.userId);
+        fetchBalance(data.userId);
+      } catch (err) {
+        console.error(err);
         router.push('/login');
-      });
+      }
+    };
+
+    checkAuth();
   }, [router]);
 
-  if (!user) {
+  const fetchBalance = async (userId: string) => {
+    try {
+      const response = await fetch(`/api/user/${userId}/balance`);
+      if (!response.ok) {
+        throw new Error('Failed to fetch balance');
+      }
+      const data: UserBalance = await response.json();
+      setBalance(data.balance);
+    } catch (err) {
+      setError('Error fetching balance');
+      console.error(err);
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
+  if (isLoading) {
     return <div>Loading...</div>;
   }
 
@@ -56,7 +62,7 @@ export default function Dashboard() {
         <h1 className="text-3xl font-bold mb-2 text-gray-800">Balance</h1>
         <p className="text-gray-600 mb-6">Quick access to your account</p>
 
-        <h2 className="text-4xl font-bold mb-6 text-gray-800">${user.balance.toFixed(2)}</h2>
+        <h2 className="text-4xl font-bold mb-6 text-gray-800">${balance.toFixed(2)}</h2>
 
         <div className="space-y-4 mb-6">
           <div className="bg-white p-4 rounded-lg shadow flex justify-between items-center">
@@ -88,8 +94,6 @@ export default function Dashboard() {
             type="text"
             placeholder="Search transactions"
             className="bg-transparent outline-none flex-1 text-gray-700 placeholder-gray-500"
-            value={searchTerm}
-            onChange={(e) => setSearchTerm(e.target.value)}
           />
         </div>
 
@@ -104,26 +108,7 @@ export default function Dashboard() {
               </tr>
             </thead>
             <tbody className="divide-y divide-gray-200">
-              {user.transactions && user.transactions
-                .filter(t =>
-                  t.description.toLowerCase().includes(searchTerm.toLowerCase()) ||
-                  t.category.toLowerCase().includes(searchTerm.toLowerCase())
-                )
-                .map((transaction, index) => (
-                  <tr key={index}>
-                    <td className="py-2 px-4 whitespace-nowrap text-gray-700">{transaction.date}</td>
-                    <td className="py-2 px-4 whitespace-nowrap text-gray-700">{transaction.description}</td>
-                    <td className="py-2 px-4 whitespace-nowrap">
-                      <span className="px-2 inline-flex text-xs leading-5 font-semibold rounded-full bg-gray-100 text-gray-800">
-                        {transaction.category}
-                      </span>
-                    </td>
-                    <td className={`py-2 px-4 whitespace-nowrap text-right ${transaction.amount > 0 ? 'text-green-600' : 'text-red-600'}`}>
-                      {transaction.amount > 0 ? '+' : '-'}${Math.abs(transaction.amount).toFixed(2)}
-                    </td>
-                  </tr>
-                ))
-              }
+            
             </tbody>
           </table>
         </div>
