@@ -25,6 +25,7 @@ export default function SignupForm({ onSubmit, error }: SignupFormProps) {
     password: '',
   });
   const [confirmPassword, setConfirmPassword] = useState('');
+  const [passwordError, setPasswordError] = useState('');
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const { name, value } = e.target;
@@ -34,10 +35,10 @@ export default function SignupForm({ onSubmit, error }: SignupFormProps) {
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
     if (formData.password !== confirmPassword) {
-      // You might want to handle this error in the parent component
-      console.error("Passwords don't match");
+      setPasswordError("Passwords don't match");
       return;
     }
+    setPasswordError('');
     onSubmit(formData);
   };
 
@@ -93,6 +94,12 @@ export default function SignupForm({ onSubmit, error }: SignupFormProps) {
           onChange={(e) => setConfirmPassword(e.target.value)}
         />
       </div>
+
+      {passwordError && (
+        <div className="text-red-500 text-sm mt-2">
+          {passwordError}
+        </div>
+      )}
 
       {error && (
         <div className="text-red-500 text-sm mt-2">
