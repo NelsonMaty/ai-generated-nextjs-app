@@ -1,29 +1,29 @@
 import { NextRequest, NextResponse } from 'next/server';
-import jwt from 'jsonwebtoken';
 import dbConnect from '@/lib/mongodb';
 import User from '@/models/User';
+import { jwtAuth } from '@/middleware/jwtAuth';
 
 export async function GET(req: NextRequest) {
-  await dbConnect();
-
-  const authHeader = req.headers.get('authorization');
-  if (!authHeader || !authHeader.startsWith('Bearer ')) {
-    return NextResponse.json({ error: 'No token provided' }, { status: 401 });
-  }
-
-  const token = authHeader.split(' ')[1];
-
   try {
-    const decoded = jwt.verify(token, process.env.JWT_SECRET!) as { userId: string };
-    const user = await User.findById(decoded.userId).select('balance');
+    await dbConnect();
+
+    const authResult = await jwtAuth(req);
+    if ('error' in authResult) {
+      return NextResponse.json({ error: authResult.error }, { status: authResult.status });
+    }
+
+    const { userId } = authResult;
+
+    const user = await User.findById(userId);
 
     if (!user) {
+      console.error('User not found:', userId);
       return NextResponse.json({ error: 'User not found' }, { status: 404 });
     }
 
     return NextResponse.json({ balance: user.balance });
   } catch (error) {
-    console.error('Error fetching user balance:', error);
-    return NextResponse.json({ error: 'Invalid token or server error' }, { status: 401 });
+    console.error('Server error:', error);
+    return NextResponse.json({ error: 'Server error' }, { status: 500 });
   }
 }

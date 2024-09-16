@@ -1,36 +1,35 @@
 import { NextRequest, NextResponse } from 'next/server';
-import jwt from 'jsonwebtoken';
 import dbConnect from '@/lib/mongodb';
 import User from '@/models/User';
+import { jwtAuth } from '@/middleware/jwtAuth';
 
 export async function PUT(req: NextRequest) {
-  await dbConnect();
-
-  const authHeader = req.headers.get('authorization');
-  if (!authHeader || !authHeader.startsWith('Bearer ')) {
-    return NextResponse.json({ error: 'No token provided' }, { status: 401 });
-  }
-
-  const token = authHeader.split(' ')[1];
-
   try {
-    const decoded = jwt.verify(token, process.env.JWT_SECRET!) as { userId: string };
-    const { firstName, lastName } = await req.json();
+    await dbConnect();
 
-    const user = await User.findById(decoded.userId);
+    const authResult = await jwtAuth(req);
+    if ('error' in authResult) {
+      return NextResponse.json({ error: authResult.error }, { status: authResult.status });
+    }
+
+    const { userId } = authResult;
+    const { name, email } = await req.json();
+
+    const user = await User.findById(userId);
 
     if (!user) {
+      console.error('User not found:', userId);
       return NextResponse.json({ error: 'User not found' }, { status: 404 });
     }
 
-    user.firstName = firstName;
-    user.lastName = lastName;
+    if (name) user.name = name;
+    if (email) user.email = email;
 
     await user.save();
 
-    return NextResponse.json({ message: 'Profile updated successfully', user: { firstName, lastName, email: user.email } });
+    return NextResponse.json({ message: 'User updated successfully', user });
   } catch (error) {
-    console.error('Error updating user:', error);
-    return NextResponse.json({ error: 'Invalid token or server error' }, { status: 401 });
+    console.error('Server error:', error);
+    return NextResponse.json({ error: 'Server error' }, { status: 500 });
   }
 }
