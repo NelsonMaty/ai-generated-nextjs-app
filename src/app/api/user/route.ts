@@ -15,13 +15,19 @@ export async function GET(req: NextRequest) {
 
   try {
     const decoded = jwt.verify(token, process.env.JWT_SECRET!) as { userId: string };
-    const user = await User.findById(decoded.userId).select('name email');
+    const user = await User.findById(decoded.userId).select('firstName lastName email accountNumber balance transactions');
 
     if (!user) {
       return NextResponse.json({ error: 'User not found' }, { status: 404 });
     }
 
-    return NextResponse.json(user);
+    return NextResponse.json({
+      name: `${user.firstName} ${user.lastName}`,
+      email: user.email,
+      accountNumber: user.accountNumber,
+      balance: user.balance,
+      transactions: user.transactions
+    });
   } catch (error) {
     console.error('Error fetching user:', error);
     return NextResponse.json({ error: 'Invalid token' }, { status: 401 });
