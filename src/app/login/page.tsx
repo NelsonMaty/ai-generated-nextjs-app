@@ -2,6 +2,7 @@
 
 import { useState } from 'react';
 import { useRouter } from 'next/navigation';
+import Link from 'next/link';
 
 export default function Login() {
   const [email, setEmail] = useState('');
@@ -19,9 +20,8 @@ export default function Login() {
 
     if (response.ok) {
       const data = await response.json();
-      // Store the token in localStorage or a secure cookie
       localStorage.setItem('token', data.token);
-      router.push('/dashboard'); // Redirect to dashboard after successful login
+      router.push('/dashboard');
     } else {
       // Handle error
       console.error('Login failed');
@@ -29,8 +29,8 @@ export default function Login() {
   };
 
   return (
-    <div className="min-h-screen flex items-center justify-center bg-gray-50 py-12 px-4 sm:px-6 lg:px-8">
-      <div className="max-w-md w-full space-y-8">
+    <div className="min-h-screen flex items-center justify-center bg-gray-100 bg-cover bg-center" style={{ backgroundImage: "url('/hero.jpg')" }}>
+      <div className="max-w-md w-full space-y-8 bg-white p-10 rounded-xl shadow-lg">
         <div>
           <h2 className="mt-6 text-center text-3xl font-extrabold text-gray-900">Sign in to your account</h2>
         </div>
@@ -80,6 +80,11 @@ export default function Login() {
             </button>
           </div>
         </form>
+        <div className="text-center">
+          <Link href="/signup" className="font-medium text-indigo-600 hover:text-indigo-500">
+            Don't have an account? Sign up
+          </Link>
+        </div>
       </div>
     </div>
   );
