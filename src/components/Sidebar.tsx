@@ -49,7 +49,6 @@ export function Sidebar() {
         <SidebarLink href="/dashboard" label="Home" icon="🏠" />
         <SidebarLink href="/deposit" label="Deposit" icon="↓" />
         <SidebarLink href="/withdraw" label="Withdraw" icon="↑" />
-        <SidebarLink href="/settings" label="Settings" icon="⚙️" />
       </nav>
     </aside>
   );

@@ -2,31 +2,34 @@
 
 import { useState } from 'react';
 import { useRouter } from 'next/navigation';
+import { useCheckAuth } from '@/hooks/useCheckAuth';
 
 export default function DepositPage() {
+  const { userId, isLoading: isAuthLoading, error: authError } = useCheckAuth();
   const [amount, setAmount] = useState('');
   const [description, setDescription] = useState('');
+  const [isLoading, setIsLoading] = useState(false);
+  const [error, setError] = useState<string | null>(null);
   const router = useRouter();
 
   const handleDeposit = async (e: React.FormEvent) => {
     e.preventDefault();
-    const token = localStorage.getItem('token');
-    if (!token) {
-      router.push('/login');
-      return;
-    }
+    if (!userId) return;
+
+    setIsLoading(true);
+    setError(null);
 
     try {
       const response = await fetch('/api/transaction', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
-          'Authorization': `Bearer ${token}`
         },
         body: JSON.stringify({
           type: 'deposit',
           amount: parseFloat(amount),
-          description
+          description,
+          userId
         })
       });
 
@@ -36,14 +39,23 @@ export default function DepositPage() {
         console.log('Deposit successful:', data);
         router.push('/dashboard');
       } else {
-        console.error('Deposit failed:', data.error);
-        // Handle error (e.g., show error message to user)
+        setError(data.error || 'Deposit failed');
       }
     } catch (error) {
       console.error('Error during deposit:', error);
-      // Handle error (e.g., show error message to user)
+      setError('An unexpected error occurred');
+    } finally {
+      setIsLoading(false);
     }
   };
+
+  if (isAuthLoading) {
+    return <div className="flex-1 p-10 bg-gray-50 min-h-screen">Loading...</div>;
+  }
+
+  if (authError) {
+    return <div className="flex-1 p-10 bg-gray-50 min-h-screen">Error: {authError}</div>;
+  }
 
   return (
     <div className="flex-1 p-10 bg-gray-50 min-h-screen">
@@ -87,11 +99,14 @@ export default function DepositPage() {
           <button
             type="submit"
             className="inline-flex justify-center py-2 px-4 border border-transparent shadow-sm text-sm font-medium rounded-md text-white bg-blue-600 hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500"
+            disabled={isLoading}
           >
-            Deposit funds
+            {isLoading ? 'Processing...' : 'Deposit funds'}
           </button>
         </div>
       </form>
+
+      {error && <p className="mt-4 text-red-600">{error}</p>}
     </div>
   );
 }
